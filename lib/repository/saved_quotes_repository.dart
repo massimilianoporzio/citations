@@ -13,16 +13,27 @@ class SavedQuoteRepository {
     final databasesPath = await getDatabasesPath();
     final dbPath = path.join(databasesPath, 'citazioni.db');
 
+    var exists = await databaseExists(dbPath);
+    if (!exists) {
+      // Should happen only the first time you launch your application
+      print("Creating new copy from asset");
+
+      // Make sure the parent directory exists
+      try {
+        await Directory(path.dirname(dbPath)).create(recursive: true);
+      } catch (_) {}
+// Create the writable database file from the bundled demo database file:
+      ByteData data = await rootBundle.load("assets/saved_citations.db");
+      List<int> bytes =
+          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      await File(dbPath).writeAsBytes(bytes);
+
+      database = await openDatabase(dbPath);
+    } else {
+      database = await openDatabase(dbPath);
+    }
     // Delete any existing database:
-    await deleteDatabase(dbPath);
-
-    // Create the writable database file from the bundled demo database file:
-    ByteData data = await rootBundle.load("assets/saved_citations.db");
-    List<int> bytes =
-        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    await File(dbPath).writeAsBytes(bytes);
-
-    database = await openDatabase(dbPath);
+    // await deleteDatabase(dbPath);
   }
 
   Future<SavedQuote> create(String autore, String citazione) async {

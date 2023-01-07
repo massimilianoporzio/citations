@@ -28,6 +28,22 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void createQuote(Quote quote) {
+    if (!citazioniSalvate.contains(quote.citazione)) {
+      citazioniSalvate.create(quote.autore, quote.citazione).then(
+        (_) {
+          setState(() {});
+        },
+      );
+    }
+  }
+
+  void deleteQuote(SavedQuote quoteToDel) {
+    citazioniSalvate.delete(quoteToDel).then((_) {
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,11 +111,17 @@ class _HomePageState extends State<HomePage> {
                             width: 8,
                           ),
                           IconButton(
-                              onPressed: () {},
+                              onPressed: () => createQuote(snapshot.data!),
                               icon: Icon(
-                                Icons.favorite_outline,
+                                citazioniSalvate
+                                        .contains(snapshot.data!.citazione)
+                                    ? Icons.favorite
+                                    : Icons.favorite_outline,
                                 size: 40,
-                                color: Colors.red.shade300,
+                                color: citazioniSalvate
+                                        .contains(snapshot.data!.citazione)
+                                    ? Colors.red
+                                    : Colors.red.shade300,
                               ))
                         ],
                       ),
@@ -115,32 +137,36 @@ class _HomePageState extends State<HomePage> {
   Widget sezioneListaSalvate() {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
-          (context, index) => Container(
-                color: colors[index % colors.length],
-                height: 175,
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Center(
-                      child: AutoSizeText(
-                        maxLines: 10,
-                        citazioniSalvate.quotes[index].citazione,
-                        style: const TextStyle(
-                            fontSize: 30, fontWeight: FontWeight.w400),
+          (context, index) => GestureDetector(
+                onDoubleTap: () => deleteQuote(citazioniSalvate.quotes[index]),
+                child: Container(
+                  color: colors[index % colors.length],
+                  height: 175,
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(
+                        child: AutoSizeText(
+                          textAlign: TextAlign.left,
+                          maxLines: 4,
+                          citazioniSalvate.quotes[index].citazione,
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w400),
+                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 6,
-                    ),
-                    Text(
-                      citazioniSalvate.quotes[index].autore,
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.w400),
-                      textAlign: TextAlign.end,
-                    )
-                  ],
+                      const SizedBox(
+                        height: 6,
+                      ),
+                      Text(
+                        citazioniSalvate.quotes[index].autore,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w400),
+                        textAlign: TextAlign.end,
+                      )
+                    ],
+                  ),
                 ),
               ),
           childCount: citazioniSalvate.quotes.length),

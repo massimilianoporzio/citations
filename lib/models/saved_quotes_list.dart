@@ -21,4 +21,8 @@ class SavedQuoteList {
     await GetIt.I.get<SavedQuoteRepository>().delete(quoteToDelete);
     quotes.removeWhere((element) => element.id == quoteToDelete.id);
   }
+
+  bool contains(String citazione) {
+    return quotes.any((element) => element.citazione == citazione);
+  }
 }
